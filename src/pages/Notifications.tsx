@@ -267,8 +267,8 @@ export const Notifications = () => {
         }
         break;
       case 'drawing_failed':
-        if (notification.projectId && notification.drawingId) {
-          navigate(`/projects/${notification.projectId}/drawings/${notification.drawingId}/ai-process`);
+        if (notification.projectId) {
+          navigate(`/projects/${notification.projectId}/drawings`);
         }
         break;
       case 'task_exception':

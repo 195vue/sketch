@@ -130,21 +130,21 @@ export const Tasks = () => {
       </div>
 
       <div className="card p-4">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="relative">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
               placeholder="搜索图纸名称..."
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
-              className="w-48 pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
           <select
             value={tenantFilter}
             onChange={(e) => setTenantFilter(e.target.value)}
-            className="input-field w-32"
+            className="input-field w-28"
           >
             <option value="all">全部租户</option>
             {tenants.map((tenant) => (
@@ -156,7 +156,7 @@ export const Tasks = () => {
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            className="input-field w-44"
+            className="input-field w-32"
           >
             <option value="all">全部项目</option>
             {projects.map((project) => (
@@ -168,7 +168,7 @@ export const Tasks = () => {
           <select
             value={taskTypeFilter}
             onChange={(e) => setTaskTypeFilter(e.target.value)}
-            className="input-field w-28"
+            className="input-field w-24"
           >
             <option value="all">全部类型</option>
             <option value="ai_recognition">AI识别</option>
@@ -177,7 +177,7 @@ export const Tasks = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="input-field w-28"
+            className="input-field w-24"
           >
             <option value="all">全部状态</option>
             <option value="1">待处理</option>
@@ -185,10 +185,6 @@ export const Tasks = () => {
             <option value="3">已完成</option>
             <option value="4">异常</option>
           </select>
-          <div className="flex items-center gap-2 ml-auto">
-            <span className="text-sm text-gray-500">任务总数：</span>
-            <span className="text-sm font-medium text-gray-800">{filteredTasks.length}</span>
-          </div>
         </div>
       </div>
 

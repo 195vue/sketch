@@ -34,6 +34,14 @@ export const Tenants = () => {
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [configTenant, setConfigTenant] = useState<typeof tenants[0] | null>(null);
   const [activeConfigTab, setActiveConfigTab] = useState('labelRule');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTenant, setEditingTenant] = useState<typeof tenants[0] | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    contact: '',
+    phone: '',
+    email: '',
+  });
 
   const filteredTenants = tenants.filter((tenant) => {
     const matchKeyword =
@@ -72,6 +80,24 @@ export const Tenants = () => {
   const handleSaveConfig = () => {
     setShowConfigModal(false);
     showToast('租户配置保存成功', 'success');
+  };
+
+  const handleEditTenant = (tenant: typeof tenants[0]) => {
+    setEditingTenant(tenant);
+    setEditFormData({
+      name: tenant.name,
+      contact: tenant.contact,
+      phone: tenant.phone,
+      email: tenant.email,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowEditModal(false);
+    setEditingTenant(null);
+    showToast('租户信息更新成功', 'success');
   };
 
   return (
@@ -254,7 +280,14 @@ export const Tenants = () => {
                       >
                         <Settings className="w-4 h-4" />
                       </button>
-                      <button className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors" title="编辑">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditTenant(tenant);
+                        }}
+                        className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors" 
+                        title="编辑"
+                      >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button className="p-2 text-gray-400 hover:text-danger-600 hover:bg-danger-50 rounded-lg transition-colors" title="删除">
@@ -507,10 +540,6 @@ export const Tenants = () => {
                 className="btn-secondary"
               >
                 关闭
-              </button>
-              <button className="btn-secondary flex items-center gap-2">
-                <Edit className="w-4 h-4" />
-                编辑信息
               </button>
               <button
                 onClick={() => handleToggleStatus(selectedTenant.id, selectedTenant.status)}
@@ -975,6 +1004,90 @@ export const Tenants = () => {
                 保存配置
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showEditModal && editingTenant && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-full max-w-lg p-6 animate-fadeIn">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-800">编辑租户</h2>
+              <button
+                onClick={() => { setShowEditModal(false); setEditingTenant(null); }}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  租户名称 <span className="text-danger-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  placeholder="请输入租户名称"
+                  className="input-field"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  联系人
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.contact}
+                  onChange={(e) => setEditFormData({ ...editFormData, contact: e.target.value })}
+                  placeholder="请输入联系人姓名"
+                  className="input-field"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  联系电话
+                </label>
+                <input
+                  type="tel"
+                  value={editFormData.phone}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                  placeholder="请输入联系电话"
+                  className="input-field"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  邮箱地址
+                </label>
+                <input
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                  placeholder="请输入邮箱地址"
+                  className="input-field"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => { setShowEditModal(false); setEditingTenant(null); }}
+                  className="btn-secondary"
+                >
+                  取消
+                </button>
+                <button type="submit" className="btn-primary">
+                  保存修改
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

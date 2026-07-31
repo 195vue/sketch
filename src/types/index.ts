@@ -173,6 +173,88 @@ export const RoleMap: Record<string, string> = {
   'browser': '浏览员',
 };
 
+// 系统级角色（用于公司人员管理）
+export const SystemRoles: { key: string; label: string }[] = [
+  { key: 'super_admin', label: '超级管理员' },
+  { key: 'tenant_admin', label: '租户管理员' },
+];
+
+// 项目级角色（用于项目成员管理）
+export const ProjectRoles: { key: string; label: string }[] = [
+  { key: 'project_admin', label: '项目管理员' },
+  { key: 'cartographer', label: '制图员' },
+  { key: 'auditor', label: '审核员' },
+  { key: 'browser', label: '浏览员' },
+];
+
+// 角色层级：数字越小权限越高
+export const RoleLevelMap: Record<string, number> = {
+  'super_admin': 0,
+  'tenant_admin': 1,
+  'project_admin': 2,
+  'cartographer': 3,
+  'auditor': 3,
+  'browser': 3,
+};
+
+// 根据当前用户角色获取可分配的系统级角色列表
+export function getAssignableSystemRoles(currentRole: string): { key: string; label: string }[] {
+  const currentLevel = RoleLevelMap[currentRole];
+  if (currentLevel === undefined) return [];
+  
+  return SystemRoles.filter(role => {
+    const roleLevel = RoleLevelMap[role.key];
+    return roleLevel !== undefined && roleLevel > currentLevel;
+  });
+}
+
+// 根据当前用户角色获取可分配的项目级角色列表
+export function getAssignableProjectRoles(currentRole: string): { key: string; label: string }[] {
+  const currentLevel = RoleLevelMap[currentRole];
+  if (currentLevel === undefined) return ProjectRoles;
+  
+  return ProjectRoles.filter(role => {
+    const roleLevel = RoleLevelMap[role.key];
+    return roleLevel !== undefined && roleLevel > currentLevel;
+  });
+}
+
+// 根据当前用户角色获取可分配的角色列表（兼容旧代码，返回系统级+项目级）
+export function getAssignableRoles(currentRole: string): { key: string; label: string }[] {
+  const currentLevel = RoleLevelMap[currentRole];
+  if (currentLevel === undefined) return [];
+  
+  return Object.entries(RoleMap)
+    .filter(([key]) => {
+      const roleLevel = RoleLevelMap[key];
+      return roleLevel !== undefined && roleLevel > currentLevel;
+    })
+    .map(([key, label]) => ({ key, label }));
+}
+
+// 角色描述
+export const RoleDescMap: Record<string, string> = {
+  'super_admin': '拥有系统所有权限，可管理全部功能',
+  'tenant_admin': '拥有租户管理权限，可管理租户内用户',
+  'project_admin': '拥有项目管理权限，可管理项目内成员和图纸',
+  'cartographer': '可上传草图、提交出图、下载和删除文件',
+  'auditor': '可审核图纸、查看和下载文件',
+  'browser': '仅可查看图纸',
+};
+
+// 根据当前用户角色获取可分配的角色列表（带描述）
+export function getAssignableRolesWithDesc(currentRole: string): { key: string; label: string; desc: string }[] {
+  const currentLevel = RoleLevelMap[currentRole];
+  if (currentLevel === undefined) return [];
+  
+  return Object.entries(RoleMap)
+    .filter(([key]) => {
+      const roleLevel = RoleLevelMap[key];
+      return roleLevel !== undefined && roleLevel > currentLevel;
+    })
+    .map(([key, label]) => ({ key, label, desc: RoleDescMap[key] || '' }));
+}
+
 export const ProjectStatusMap: Record<number, string> = {
   1: '进行中',
   2: '已完成',

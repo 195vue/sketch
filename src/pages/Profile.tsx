@@ -37,7 +37,7 @@ export const Profile = () => {
   const [showConfirmPwd, setShowConfirmPwd] = useState(false);
 
   const [logDateRange, setLogDateRange] = useState({ start: '', end: '' });
-  const [logActionFilter, setLogActionFilter] = useState('all');
+  const [logStatusFilter, setLogStatusFilter] = useState('all');
 
   const tabs = [
     { id: 'info', label: '基本信息', icon: User },
@@ -88,25 +88,13 @@ export const Profile = () => {
 
   const filteredLogs = useMemo(() => {
     return myLogs.filter((log) => {
-      const matchAction = logActionFilter === 'all' || log.actionType === logActionFilter;
+      const matchStatus = logStatusFilter === 'all' || String(log.result) === logStatusFilter;
       const matchDate =
         (!logDateRange.start || log.createdAt >= logDateRange.start) &&
         (!logDateRange.end || log.createdAt <= logDateRange.end);
-      return matchAction && matchDate;
+      return matchStatus && matchDate;
     });
-  }, [myLogs, logActionFilter, logDateRange]);
-
-  const logStats = useMemo(() => ({
-    total: filteredLogs.length,
-    success: filteredLogs.filter((l) => l.result === 1).length,
-    failed: filteredLogs.filter((l) => l.result === 0).length,
-  }), [filteredLogs]);
-
-  const actionTypeOptions = useMemo(() => {
-    const types = new Set<string>();
-    myLogs.forEach((log) => types.add(log.actionType));
-    return Array.from(types).map((t) => ({ value: t, label: ActionTypeMap[t] || t }));
-  }, [myLogs]);
+  }, [myLogs, logStatusFilter, logDateRange]);
 
   const isMatch = confirmPassword && newPassword === confirmPassword;
   const isMismatch = confirmPassword && newPassword !== confirmPassword;
@@ -403,8 +391,8 @@ export const Profile = () => {
           )}
 
           {activeTab === 'logs' && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 flex-wrap">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
                 <input
                   type="date"
                   value={logDateRange.start}
@@ -419,53 +407,14 @@ export const Profile = () => {
                   className="input-field w-36"
                 />
                 <select
-                  value={logActionFilter}
-                  onChange={(e) => setLogActionFilter(e.target.value)}
-                  className="input-field w-32"
+                  value={logStatusFilter}
+                  onChange={(e) => setLogStatusFilter(e.target.value)}
+                  className="input-field w-28"
                 >
-                  <option value="all">全部类型</option>
-                  {actionTypeOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
+                  <option value="all">全部状态</option>
+                  <option value="1">成功</option>
+                  <option value="0">失败</option>
                 </select>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="card p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-sm">总操作数</p>
-                      <p className="text-2xl font-bold text-gray-800 mt-1">{logStats.total}</p>
-                    </div>
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-gray-600" />
-                    </div>
-                  </div>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-sm">成功数</p>
-                      <p className="text-2xl font-bold text-success-600 mt-1">{logStats.success}</p>
-                    </div>
-                    <div className="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-success-600" />
-                    </div>
-                  </div>
-                </div>
-                <div className="card p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-500 text-sm">失败数</p>
-                      <p className="text-2xl font-bold text-danger-600 mt-1">{logStats.failed}</p>
-                    </div>
-                    <div className="w-10 h-10 bg-danger-100 rounded-lg flex items-center justify-center">
-                      <XCircle className="w-5 h-5 text-danger-600" />
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <div className="card overflow-hidden">

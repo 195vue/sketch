@@ -28,7 +28,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { members, projects, operationLogs } from '../utils/mockData';
-import { RoleMap, ActionTypeMap, PermissionMap, RolePermissionMap, type ProjectPermission, type ProjectRole, type OnlineStatusMap } from '../types';
+import { RoleMap, ActionTypeMap, PermissionMap, RolePermissionMap, ProjectRoles, getAssignableProjectRoles, type ProjectPermission, type ProjectRole, type OnlineStatusMap } from '../types';
 import { showToast } from '../components/Toast';
 import { useStore } from '../store/useStore';
 
@@ -87,6 +87,9 @@ export const Members = () => {
   const projectMembers = members.filter((m) => m.projectId === id);
   const projectLogs = operationLogs.filter((l) => l.projectId === id);
   const { setCurrentProject, hasPermission, user } = useStore();
+
+  // 根据当前用户角色获取可分配的项目级角色列表
+  const assignableRoles = getAssignableProjectRoles(user?.role || '');
 
   useEffect(() => {
     if (project) {
@@ -579,9 +582,9 @@ export const Members = () => {
                 className="input-field w-40"
               >
                 <option value="all">全部角色</option>
-                {Object.entries(RoleMap).map(([key, value]) => (
+                {ProjectRoles.map(({ key, label }) => (
                   <option key={key} value={key}>
-                    {value}
+                    {label}
                   </option>
                 ))}
               </select>
@@ -830,28 +833,43 @@ export const Members = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">项目角色</label>
                 <div className="grid grid-cols-2 gap-3">
-                  {Object.entries(RoleMap).map(([key, value]) => (
-                    <label
-                      key={key}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                        editingRole === key
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="role"
-                        value={key}
-                        checked={editingRole === key}
-                        onChange={(e) => setEditingRole(e.target.value)}
-                        className="w-4 h-4 text-primary-600"
-                      />
-                      <span className={`font-medium ${editingRole === key ? 'text-primary-700' : 'text-gray-700'}`}>
-                        {value}
-                      </span>
-                    </label>
-                  ))}
+                  {(() => {
+                    // 如果成员当前角色不在可分配列表中（如已是项目管理员），仍需显示但禁用
+                    const allOptions = [...assignableRoles];
+                    if (editingMember && !assignableRoles.some(r => r.key === editingMember.role)) {
+                      const currentRole = RoleMap[editingMember.role];
+                      if (currentRole) {
+                        allOptions.unshift({ key: editingMember.role, label: currentRole });
+                      }
+                    }
+                    return allOptions.map(({ key, label }) => {
+                      const isDisabled = editingMember?.role === key && !assignableRoles.some(r => r.key === key);
+                      return (
+                        <label
+                          key={key}
+                          className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                            editingRole === key
+                              ? 'border-primary-500 bg-primary-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          } ${isDisabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        >
+                          <input
+                            type="radio"
+                            name="role"
+                            value={key}
+                            checked={editingRole === key}
+                            onChange={(e) => setEditingRole(e.target.value)}
+                            disabled={isDisabled}
+                            className="w-4 h-4 text-primary-600"
+                          />
+                          <span className={`font-medium ${editingRole === key ? 'text-primary-700' : 'text-gray-700'}`}>
+                            {label}
+                            {isDisabled && <span className="ml-1 text-xs text-gray-400">(当前)</span>}
+                          </span>
+                        </label>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 

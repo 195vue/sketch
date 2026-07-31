@@ -199,22 +199,24 @@ export const Projects = () => {
       </div>
 
       <div className="card p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <div className="flex items-center gap-3">
+          <div className="w-80">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="搜索项目名称..."
+                placeholder="搜索项目"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                className="input-field pl-12 w-full"
+                className="input-field pl-8 w-full"
               />
             </div>
+          </div>
+          <div className="w-48">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="input-field w-40"
+              className="input-field"
             >
               <option value="all">全部状态</option>
               <option value="1">进行中</option>
@@ -223,7 +225,7 @@ export const Projects = () => {
               <option value="4">已作废</option>
             </select>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setViewMode('table')}

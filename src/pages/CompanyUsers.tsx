@@ -19,8 +19,9 @@ import {
   ToggleLeft,
   ToggleRight,
 } from 'lucide-react';
-import { RoleMap } from '../types';
+import { RoleMap, SystemRoles, getAssignableSystemRoles } from '../types';
 import { showToast } from '../components/Toast';
+import { useStore } from '../store/useStore';
 
 interface OrgTreeNode {
   id: string;
@@ -33,12 +34,6 @@ interface OrgTreeNode {
   status?: number;
   children?: OrgTreeNode[];
 }
-
-const systemRoles = [
-  { key: 'super_admin', label: '超级管理员', desc: '拥有系统所有权限，可管理全部功能' },
-  { key: 'tenant_admin', label: '租户管理员', desc: '拥有租户管理权限，可管理租户内用户' },
-  { key: 'user', label: '普通用户', desc: '基础用户权限，可使用分配的功能' },
-];
 
 const orgTree: OrgTreeNode[] = [
   {
@@ -73,6 +68,9 @@ const orgTree: OrgTreeNode[] = [
 ];
 
 export const CompanyUsers = () => {
+  const { user } = useStore();
+  const assignableRoles = getAssignableSystemRoles(user?.role || '');
+
   const [searchKeyword, setSearchKeyword] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -217,7 +215,7 @@ export const CompanyUsers = () => {
 
   const handleSaveRole = () => {
     if (!roleEditingUser || !selectedSystemRole) return;
-    showToast(`用户 "${roleEditingUser.name}" 角色已更新为${systemRoles.find(r => r.key === selectedSystemRole)?.label}`, 'success');
+    showToast(`用户 "${roleEditingUser.name}" 角色已更新为${RoleMap[selectedSystemRole]}`, 'success');
     setShowRoleModal(false);
     setRoleEditingUser(null);
     setSelectedSystemRole('');
@@ -372,9 +370,9 @@ export const CompanyUsers = () => {
                   className="input-field w-40"
                 >
                   <option value="all">全部角色</option>
-                  {Object.entries(RoleMap).map(([key, value]) => (
+                  {SystemRoles.map(({ key, label }) => (
                     <option key={key} value={key}>
-                      {value}
+                      {label}
                     </option>
                   ))}
                 </select>
@@ -600,9 +598,9 @@ export const CompanyUsers = () => {
                     className="input-field"
                     required
                   >
-                    {Object.entries(RoleMap).map(([key, value]) => (
+                    {assignableRoles.map(({ key, label }) => (
                       <option key={key} value={key}>
-                        {value}
+                        {label}
                       </option>
                     ))}
                   </select>
@@ -700,9 +698,9 @@ export const CompanyUsers = () => {
                     className="input-field"
                     required
                   >
-                    {Object.entries(RoleMap).map(([key, value]) => (
+                    {assignableRoles.map(({ key, label }) => (
                       <option key={key} value={key}>
-                        {value}
+                        {label}
                       </option>
                     ))}
                   </select>
@@ -758,7 +756,7 @@ export const CompanyUsers = () => {
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">系统级角色</label>
               <div className="space-y-2">
-                {systemRoles.map((role) => (
+                {assignableRoles.map((role) => (
                   <label
                     key={role.key}
                     className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
@@ -777,11 +775,17 @@ export const CompanyUsers = () => {
                     />
                     <div>
                       <div className="font-medium text-gray-800">{role.label}</div>
-                      <div className="text-sm text-gray-500">{role.desc}</div>
+                      <div className="text-sm text-gray-500">
+                        {role.key === 'super_admin' ? '拥有系统所有权限，可管理全部功能' :
+                         role.key === 'tenant_admin' ? '拥有租户管理权限，可管理租户内用户和数据' : ''}
+                      </div>
                     </div>
                   </label>
                 ))}
               </div>
+              {assignableRoles.length === 0 && (
+                <p className="text-sm text-gray-400 text-center py-4">您当前没有可分配的角色权限</p>
+              )}
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
