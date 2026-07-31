@@ -117,8 +117,8 @@ export const Tenants = () => {
       </div>
 
       <div className="card p-4">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1">
+        <div className="flex items-center gap-3">
+          <div className="relative w-40">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"

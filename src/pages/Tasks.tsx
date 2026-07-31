@@ -131,7 +131,7 @@ export const Tasks = () => {
 
       <div className="card p-4">
         <div className="flex items-center gap-3">
-          <div className="relative flex-1">
+          <div className="relative" style={{ width: '224px', flexShrink: 0 }}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
@@ -156,7 +156,7 @@ export const Tasks = () => {
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            className="input-field w-32"
+            className="input-field w-28"
           >
             <option value="all">全部项目</option>
             {projects.map((project) => (
@@ -168,7 +168,7 @@ export const Tasks = () => {
           <select
             value={taskTypeFilter}
             onChange={(e) => setTaskTypeFilter(e.target.value)}
-            className="input-field w-24"
+            className="input-field w-28"
           >
             <option value="all">全部类型</option>
             <option value="ai_recognition">AI识别</option>
@@ -177,7 +177,7 @@ export const Tasks = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="input-field w-24"
+            className="input-field w-28"
           >
             <option value="all">全部状态</option>
             <option value="1">待处理</option>
